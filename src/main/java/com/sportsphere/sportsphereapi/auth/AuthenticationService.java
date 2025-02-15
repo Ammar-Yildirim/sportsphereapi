@@ -1,10 +1,14 @@
 package com.sportsphere.sportsphereapi.auth;
 
 import com.sportsphere.sportsphereapi.config.JwtService;
+import com.sportsphere.sportsphereapi.exception.CustomException;
 import com.sportsphere.sportsphereapi.user.Role;
 import com.sportsphere.sportsphereapi.user.User;
 import com.sportsphere.sportsphereapi.user.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +24,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request){
+    public AuthenticationResponse register(RegisterRequest request, HttpServletResponse response){
         if(!EmailValidator.getInstance().isValid(request.getEmail())){
             throw new IllegalArgumentException("Invalid email format: " + request.getEmail());
         }
@@ -33,14 +37,18 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+
+        String newAccessToken = jwtService.generateToken(user, false);
+        String newRefreshToken = jwtService.generateToken(user, true);
+
+        setRefreshTokenCookie(response, newRefreshToken);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .token(newAccessToken)
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -49,10 +57,56 @@ public class AuthenticationService {
         );
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        String jwtToken = jwtService.generateToken(user);
+
+        String newAccessToken = jwtService.generateToken(user, false);
+        String newRefreshToken = jwtService.generateToken(user, true);
+        setRefreshTokenCookie(response, newRefreshToken);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .token(newAccessToken)
                 .build();
     }
+
+    public AuthenticationResponse refresh(String refreshToken) {
+        if (refreshToken == null || !jwtService.validateToken(refreshToken, true)) {
+            throw new CustomException("Invalid or expired refresh token", HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = jwtService.extractUsername(refreshToken, true);
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+
+        String newAccessToken = jwtService.generateToken(user, false);
+
+        return AuthenticationResponse.builder()
+                .token(newAccessToken)
+                .build();
+    }
+
+    public String logout(String refreshToken,HttpServletResponse response){
+        if( refreshToken != null ){
+            removeRefreshTokenCookie(response);
+            return "Successfully logged out";
+        }
+
+        return "Error occurred during log out";
+    }
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // set to true if using https
+        cookie.setPath("/"); // Set the path if required
+        cookie.setMaxAge(60 * 60 * 24 * 15); // Set the expiration (e.g., 15 days)
+        response.addCookie(cookie);
+    }
+
+    private void removeRefreshTokenCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    }
+
 }

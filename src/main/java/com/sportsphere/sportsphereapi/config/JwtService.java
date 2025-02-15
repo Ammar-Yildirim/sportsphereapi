@@ -24,11 +24,21 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${SECRET_KEY}")
-    private String SECRET_KEY;
+    @Value("${ACCESS_TOKEN_SECRET_KEY}")
+    private String ACCESS_TOKEN_SECRET_KEY;
 
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+    @Value("${REFRESH_TOKEN_SECRET_KEY}")
+    private String REFRESH_TOKEN_SECRET_KEY;
+
+    @Value("${ACCESS_TOKEN_EXPIRATION}")
+    private long ACCESS_TOKEN_EXPIRATION;
+
+    @Value("${REFRESH_TOKEN_EXPIRATION}")
+    private long REFRESH_TOKEN_EXPIRATION;
+
+
+    private SecretKey getSignInKey(String secretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -40,47 +50,56 @@ public class JwtService {
         return null;
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String extractUsername(String token, boolean isRefreshToken) {
+        return extractClaim(token, Claims::getSubject, isRefreshToken);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token, boolean isRefreshToken) {
+        String secretKey = isRefreshToken ? REFRESH_TOKEN_SECRET_KEY : ACCESS_TOKEN_SECRET_KEY;
+
         return Jwts.parser()
-                .verifyWith(getSignInKey())
+                .verifyWith(getSignInKey(secretKey))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) {
+        final Claims claims = extractAllClaims(token, isRefreshToken);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails, Boolean isRefreshToken) {
+        return generateToken(new HashMap<>(), userDetails, isRefreshToken);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, boolean isRefreshToken) {
+        String secretKey = isRefreshToken ? REFRESH_TOKEN_SECRET_KEY : ACCESS_TOKEN_SECRET_KEY;
+        long expiration = isRefreshToken ? REFRESH_TOKEN_EXPIRATION : ACCESS_TOKEN_EXPIRATION;
+
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getSignInKey())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(secretKey))
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, boolean isRefreshToken) {
+        String secretKey = isRefreshToken ? REFRESH_TOKEN_SECRET_KEY : ACCESS_TOKEN_SECRET_KEY;
+
         try {
             Jwts
                     .parser()
-                    .verifyWith(getSignInKey())
+                    .verifyWith(getSignInKey(secretKey))
                     .build()
                     .parseSignedClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e){
+            throw new CustomException("JWT Token not provided", HttpStatus.UNAUTHORIZED);
+        } catch (JwtException e) {
+            throw new CustomException(String.format("Expired or invalid %s JWT token", isRefreshToken ? "refresh" : "access"), HttpStatus.UNAUTHORIZED);
         }
     }
 }
