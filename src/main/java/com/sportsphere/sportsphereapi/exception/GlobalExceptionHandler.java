@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -18,6 +19,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleCustomException(CustomException ex) {
         log.error("JWT Validation Error: {}", ex.getMessage());
         return ResponseEntity.status(ex.getHttpStatus())
+                .body(Map.of("error", "JWT Validation Error", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler( MissingRequestCookieException.class)
+    public ResponseEntity<Map<String, String>> handleMissingCookieException(MissingRequestCookieException ex) {
+        log.error("JWT Validation Error, missing refresh token cookie: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", "JWT Validation Error", "message", ex.getMessage()));
     }
 

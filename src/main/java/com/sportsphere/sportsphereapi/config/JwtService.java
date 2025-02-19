@@ -99,7 +99,7 @@ public class JwtService {
         } catch (IllegalArgumentException e){
             throw new CustomException("JWT Token not provided", HttpStatus.UNAUTHORIZED);
         } catch (JwtException e) {
-            throw new CustomException(String.format("Expired or invalid %s JWT token", isRefreshToken ? "refresh" : "access"), HttpStatus.UNAUTHORIZED);
+            throw new CustomException(String.format("Expired or invalid %s JWT token %s", isRefreshToken ? "refresh" : "access", token), HttpStatus.UNAUTHORIZED);
         }
     }
 }
