@@ -24,9 +24,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request, HttpServletResponse response){
-        if(!EmailValidator.getInstance().isValid(request.getEmail())){
+    public AuthenticationResponse register(RegisterRequest request, HttpServletResponse response) {
+        if (!EmailValidator.getInstance().isValid(request.getEmail())) {
             throw new IllegalArgumentException("Invalid email format: " + request.getEmail());
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new CustomException("Non-Unique email address Error", "This email address is already in use", HttpStatus.CONFLICT);
         }
 
         User user = User.builder()
@@ -49,7 +52,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response){
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -70,11 +73,11 @@ public class AuthenticationService {
 
     public AuthenticationResponse refresh(String refreshToken) {
         if (refreshToken == null || !jwtService.validateToken(refreshToken, true)) {
-            throw new CustomException("Invalid or expired refresh token", HttpStatus.UNAUTHORIZED);
+            throw new CustomException("JWT Validation Error", "Invalid or expired refresh token", HttpStatus.UNAUTHORIZED);
         }
 
         String username = jwtService.extractUsername(refreshToken, true);
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException("User not found Error", "User not found", HttpStatus.NOT_FOUND));
 
         String newAccessToken = jwtService.generateToken(user, false);
 
@@ -83,8 +86,8 @@ public class AuthenticationService {
                 .build();
     }
 
-    public String logout(String refreshToken,HttpServletResponse response){
-        if( refreshToken != null ){
+    public String logout(String refreshToken, HttpServletResponse response) {
+        if (refreshToken != null) {
             removeRefreshTokenCookie(response);
             return "Successfully logged out";
         }

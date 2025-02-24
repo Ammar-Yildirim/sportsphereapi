@@ -14,22 +14,22 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request,@NonNull HttpServletResponse response){
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request, @NonNull HttpServletResponse response) {
         return ResponseEntity.ok(authenticationService.register(request, response));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthenticationRequest request,@NonNull HttpServletResponse response){
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request, @NonNull HttpServletResponse response) {
         return ResponseEntity.ok(authenticationService.authenticate(request, response));
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(@CookieValue("refresh_token") String refreshToken){
+    public ResponseEntity<AuthenticationResponse> refresh(@CookieValue("refresh_token") String refreshToken) {
         return ResponseEntity.ok(authenticationService.refresh(refreshToken));
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue("refresh_token") String refreshToken,@NonNull HttpServletResponse response){
+    public ResponseEntity<String> logout(@CookieValue("refresh_token") String refreshToken, @NonNull HttpServletResponse response) {
         return ResponseEntity.ok(authenticationService.logout(refreshToken, response));
     }
 }

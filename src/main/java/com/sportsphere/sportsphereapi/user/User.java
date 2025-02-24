@@ -18,11 +18,15 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(nullable = false)
     private String firstname;
+    @Column(nullable = false)
     private String lastname;
+    @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
     private String password;
     private Boolean enabled = false;
     @Enumerated(EnumType.STRING)

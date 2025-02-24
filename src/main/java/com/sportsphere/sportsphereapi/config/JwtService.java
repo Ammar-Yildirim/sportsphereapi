@@ -96,10 +96,10 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token);
             return true;
-        } catch (IllegalArgumentException e){
-            throw new CustomException("JWT Token not provided", HttpStatus.UNAUTHORIZED);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException("JWT Validation Error", "JWT Token not provided", HttpStatus.UNAUTHORIZED);
         } catch (JwtException e) {
-            throw new CustomException(String.format("Expired or invalid %s JWT token %s", isRefreshToken ? "refresh" : "access", token), HttpStatus.UNAUTHORIZED);
+            throw new CustomException("JWT Validation Error", String.format("Expired or invalid %s JWT token %s", isRefreshToken ? "refresh" : "access", token), HttpStatus.UNAUTHORIZED);
         }
     }
 }

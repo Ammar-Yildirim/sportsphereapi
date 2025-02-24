@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/demo-controller")
 public class DemoController {
     @GetMapping
-    public ResponseEntity<String> sayHello(){
+    public ResponseEntity<String> sayHello() {
         return ResponseEntity.ok("Hello from secured endpoint");
     }
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
-        throw(new IllegalArgumentException("HELLLOOOOO"));
+        throw (new IllegalArgumentException("HELLLOOOOO"));
     }
 }

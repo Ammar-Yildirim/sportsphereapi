@@ -17,28 +17,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Map<String, String>> handleCustomException(CustomException ex) {
-        log.error("JWT Validation Error: {}", ex.getMessage());
         return ResponseEntity.status(ex.getHttpStatus())
-                .body(Map.of("error", "JWT Validation Error", "message", ex.getMessage()));
+                .body(Map.of("error", ex.getError(), "message", ex.getMessage()));
     }
 
-    @ExceptionHandler( MissingRequestCookieException.class)
+    @ExceptionHandler(MissingRequestCookieException.class)
     public ResponseEntity<Map<String, String>> handleMissingCookieException(MissingRequestCookieException ex) {
-        log.error("JWT Validation Error, missing refresh token cookie: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "JWT Validation Error", "message", ex.getMessage()));
+                .body(Map.of("error", "Missing Request Cookie", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
-        log.error("Access Denied Error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN.value())
                 .body(Map.of("error", "Access Denied Exception", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
-        log.error("Bad credentials: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value())
                 .body(Map.of("error", "Bad Credentials Exception", "message", "Missing or Incorrect Credentials"));
     }

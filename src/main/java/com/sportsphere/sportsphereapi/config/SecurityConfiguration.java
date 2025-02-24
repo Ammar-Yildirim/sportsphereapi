@@ -27,7 +27,7 @@ public class SecurityConfiguration {
     private final ExceptionHandlerFilter exceptionFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
@@ -40,8 +40,8 @@ public class SecurityConfiguration {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/v1/auth/**").permitAll()
-                            .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
