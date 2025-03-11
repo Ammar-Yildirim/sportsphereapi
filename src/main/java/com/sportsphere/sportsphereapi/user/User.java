@@ -20,9 +20,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstname;
-    @Column(nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastname;
     @Column(unique = true, nullable = false)
     private String email;
