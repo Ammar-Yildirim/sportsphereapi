@@ -1,4 +1,4 @@
-package com.sportsphere.sportsphereapi.event.Entity;
+package com.sportsphere.sportsphereapi.event.entity;
 
 import com.sportsphere.sportsphereapi.user.User;
 import jakarta.persistence.*;
@@ -39,18 +39,15 @@ public class Event {
     @Column(name = "sport_name", nullable = false)
     private String sportName;
 
-    @Column(name = "location_name", nullable = false)
-    private String locationName;
-
     @Column(name = "team_number", nullable = false)
     private Integer teamNumber;
 
     @Column(name = "player_number", nullable = false)
     private Integer playerNumber;
 
-    private Double latitude;
-
-    private Double longitude;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

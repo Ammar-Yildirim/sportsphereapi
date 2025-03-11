@@ -1,15 +1,16 @@
 package com.sportsphere.sportsphereapi.event.mapper;
 
-import com.sportsphere.sportsphereapi.event.DTO.Location;
+import com.sportsphere.sportsphereapi.event.DTO.LocationDTO;
 import com.sportsphere.sportsphereapi.event.DTO.Sport;
-import com.sportsphere.sportsphereapi.event.Entity.Event;
+import com.sportsphere.sportsphereapi.event.entity.Event;
 import com.sportsphere.sportsphereapi.event.DTO.EventDTO;
+import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
-    public Event toEntity(EventDTO dto, User user){
+    public Event toEntity(EventDTO dto, User user, Location location){
         return Event.builder()
                 .title(dto.getTitle())
                 .createdBy(user)
@@ -17,9 +18,7 @@ public class EventMapper {
                 .startsAt(dto.getStartsAt())
                 .sportCategory(dto.getSport().getCategory())
                 .sportName(dto.getSport().getName())
-                .locationName(dto.getLocation().getName())
-                .longitude(dto.getLocation().getLongitude())
-                .latitude(dto.getLocation().getLatitude())
+                .location(location)
                 .playerNumber(dto.getPlayerNumber())
                 .teamNumber(dto.getTeamNumber())
                 .build();
@@ -32,10 +31,10 @@ public class EventMapper {
                 .playerNumber(event.getPlayerNumber())
                 .teamNumber(event.getTeamNumber())
                 .startsAt(event.getStartsAt())
-                .location(Location.builder()
-                        .name(event.getLocationName())
-                        .latitude(event.getLatitude())
-                        .longitude(event.getLongitude())
+                .locationDTO(LocationDTO.builder()
+                        .name(event.getLocation().getName())
+                        .latitude(event.getLocation().getLatitude())
+                        .longitude(event.getLocation().getLongitude())
                         .build())
                 .sport(Sport.builder()
                         .category(event.getSportCategory())
