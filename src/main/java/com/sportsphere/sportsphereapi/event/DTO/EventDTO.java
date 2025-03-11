@@ -1,6 +1,5 @@
 package com.sportsphere.sportsphereapi.event.DTO;
 
-import com.sportsphere.sportsphereapi.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class EventDTO {
     private final LocalDateTime startsAt;
     private final Integer teamNumber;
     private final Integer playerNumber;
-    private final Location location;
+    private final LocationDTO locationDTO;
     private final Sport sport;
     private final String createdBy;
 }
