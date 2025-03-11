@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,14 +21,16 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
-    public void createEvent(EventDTO eventDTO) {
+    public UUID createEvent(EventDTO eventDTO) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Location location = locationService.createLocation(eventDTO.getLocationDTO());
         Event event = eventMapper.toEntity(eventDTO, user, location);
-        eventRepository.save(event);
+        event = eventRepository.save(event);
+
+        return event.getId();
     }
 
-    public EventDTO getById(Integer id){
+    public EventDTO getById(UUID id){
         Optional<Event> event = eventRepository.findById(id);
         if(event.isPresent()){
             return eventMapper.toDTO(event.get());

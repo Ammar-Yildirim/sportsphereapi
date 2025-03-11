@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -23,15 +24,15 @@ public class EventController {
     }
 
     @GetMapping("/getByID")
-    public ResponseEntity<EventDTO> getById(@RequestParam("id") Integer id){
+    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id){
         EventDTO eventDTO = eventService.getById(id);
         if(eventDTO != null) return ResponseEntity.ok(eventDTO);
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createEvent(@RequestBody EventDTO eventDTO) {
-        eventService.createEvent(eventDTO);
-        return ResponseEntity.ok("saved");
+    public ResponseEntity<UUID> createEvent(@RequestBody EventDTO eventDTO) {
+        UUID id = eventService.createEvent(eventDTO);
+        return ResponseEntity.ok(id);
     }
 }
