@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "Locations")
 @Builder
@@ -22,9 +24,18 @@ public class Location {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "latitude", nullable = false, length = 15)
-    private String latitude;
+    @Column(name = "latitude", nullable = false, precision = 10, scale = 7)
+    private BigDecimal latitude;
 
-    @Column(name = "longitude", nullable = false, length = 15)
-    private String longitude;
+    @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
+    private BigDecimal longitude;
+
+    @Column(name = "city", length = 255)
+    private String city;
+
+    @Column(name = "country", length = 255)
+    private String country;
+
+    @Column(name = "formatted_address", nullable = false, length = 255)
+    private String formattedAddress;
 }

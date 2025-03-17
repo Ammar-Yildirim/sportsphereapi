@@ -8,6 +8,9 @@ import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Component
 public class EventMapper {
     public Event toEntity(EventDTO dto, User user, Location location){
@@ -26,6 +29,7 @@ public class EventMapper {
 
     public EventDTO toDTO(Event event){
         return EventDTO.builder()
+                .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .playerNumber(event.getPlayerNumber())
@@ -33,8 +37,11 @@ public class EventMapper {
                 .startsAt(event.getStartsAt())
                 .locationDTO(LocationDTO.builder()
                         .name(event.getLocation().getName())
-                        .latitude(event.getLocation().getLatitude())
-                        .longitude(event.getLocation().getLongitude())
+                        .latitude(event.getLocation().getLatitude().doubleValue())
+                        .longitude(event.getLocation().getLongitude().doubleValue())
+                        .city(event.getLocation().getCity())
+                        .country(event.getLocation().getCountry())
+                        .formattedAddress(event.getLocation().getFormattedAddress())
                         .build())
                 .sport(Sport.builder()
                         .category(event.getSportCategory())

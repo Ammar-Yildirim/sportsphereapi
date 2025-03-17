@@ -6,6 +6,7 @@ import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
 import com.sportsphere.sportsphereapi.event.repository.EventRepository;
 import com.sportsphere.sportsphereapi.user.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
+    @Transactional
     public UUID createEvent(EventDTO eventDTO) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Location location = locationService.createLocation(eventDTO.getLocationDTO());

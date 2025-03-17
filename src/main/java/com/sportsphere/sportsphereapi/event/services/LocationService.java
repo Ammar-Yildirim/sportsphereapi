@@ -6,6 +6,8 @@ import com.sportsphere.sportsphereapi.event.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 @Service
@@ -15,8 +17,10 @@ public class LocationService {
 
     public Location createLocation(LocationDTO locationDTO) {
         Location location;
-        String latitude = locationDTO.getLatitude();
-        String longitude = locationDTO.getLongitude();
+        BigDecimal latitude = BigDecimal.valueOf(locationDTO.getLatitude())
+                .setScale(7, RoundingMode.FLOOR);
+        BigDecimal longitude = BigDecimal.valueOf(locationDTO.getLongitude())
+                .setScale(7, RoundingMode.FLOOR);
         Optional<Location> existingLocation = locationRepository.findByLatitudeAndLongitude(latitude, longitude);
 
         if (existingLocation.isPresent()) {
@@ -24,8 +28,11 @@ public class LocationService {
         } else {
             location = Location.builder()
                     .name(locationDTO.getName())
-                    .longitude(locationDTO.getLongitude())
-                    .latitude(locationDTO.getLatitude())
+                    .longitude(longitude)
+                    .latitude(latitude)
+                    .city(locationDTO.getCity())
+                    .country(locationDTO.getCountry())
+                    .formattedAddress(locationDTO.getFormattedAddress())
                     .build();
             locationRepository.save(location);
         }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @ToString
 @Getter
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class EventDTO {
 
+    private final UUID id;
     private final String title;
     private final String description;
     private final LocalDateTime startsAt;
