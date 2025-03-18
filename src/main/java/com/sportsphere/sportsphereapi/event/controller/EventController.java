@@ -18,15 +18,15 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<EventDTO>> getAll(){
+    public ResponseEntity<List<EventDTO>> getAll() {
         List<EventDTO> eventDTOs = eventService.getAll();
         return ResponseEntity.ok(eventDTOs);
     }
 
     @GetMapping("/getByID")
-    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id){
+    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id) {
         EventDTO eventDTO = eventService.getById(id);
-        if(eventDTO != null) return ResponseEntity.ok(eventDTO);
+        if (eventDTO != null) return ResponseEntity.ok(eventDTO);
         return ResponseEntity.notFound().build();
     }
 
