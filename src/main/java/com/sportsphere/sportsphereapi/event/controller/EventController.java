@@ -17,9 +17,15 @@ public class EventController {
 
     private final EventService eventService;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<EventDTO>> getAll() {
-        List<EventDTO> eventDTOs = eventService.getAll();
+    @GetMapping("/getUpcomingEventsByLocation")
+    public ResponseEntity<List<EventDTO>> getUpcomingEventsByLocation(@RequestParam("refLat") double refLat, @RequestParam("refLon") double refLon) {
+        List<EventDTO> eventDTOs = eventService.getUpcomingEventsByLocation(refLat, refLon);
+        return ResponseEntity.ok(eventDTOs);
+    }
+
+    @GetMapping("/getUpcomingEvents")
+    public ResponseEntity<List<EventDTO>> getUpcomingEvents() {
+        List<EventDTO> eventDTOs = eventService.getUpcomingEvents();
         return ResponseEntity.ok(eventDTOs);
     }
 

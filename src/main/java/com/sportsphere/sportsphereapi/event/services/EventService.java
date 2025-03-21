@@ -32,17 +32,24 @@ public class EventService {
         return event.getId();
     }
 
-    public EventDTO getById(UUID id){
+    public EventDTO getById(UUID id) {
         Optional<Event> event = eventRepository.findById(id);
-        if(event.isPresent()){
+        if (event.isPresent()) {
             return eventMapper.toDTO(event.get());
         }
         return null;
     }
 
-    public List<EventDTO> getAll(){
-        List<Event> events = eventRepository.findAll();
+    public List<EventDTO> getUpcomingEventsByLocation(double refLat, double refLon) {
+        List<Event> events = eventRepository.findUpcomingEventsWithinDistance(refLat, refLon, 30000);
         return events.stream()
+                .map(eventMapper::toDTO)
+                .toList();
+    }
+
+    public List<EventDTO> getUpcomingEvents() {
+        return eventRepository.findUpcomingEvents()
+                .stream()
                 .map(eventMapper::toDTO)
                 .toList();
     }
