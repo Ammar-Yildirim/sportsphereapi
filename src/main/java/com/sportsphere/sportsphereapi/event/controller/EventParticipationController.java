@@ -1,6 +1,8 @@
 package com.sportsphere.sportsphereapi.event.controller;
 
-import com.sportsphere.sportsphereapi.event.DTO.EventParticipationDTO;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
+import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
+import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
 import com.sportsphere.sportsphereapi.event.services.EventParticipationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +19,16 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PostMapping("/addParticipation")
-    public ResponseEntity<String> addParticipation(@RequestBody EventParticipationDTO dto) {
-        eventParticipationService.addParticipation(dto);
+    public ResponseEntity<EventParticipationResponse> addParticipation(@RequestBody EventParticipationRequest request) {
+        EventParticipationResponse eventParticipationResponse =  eventParticipationService.addParticipation(request);
 
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(eventParticipationResponse);
     }
 
     @GetMapping("/getEventParticipation")
-    public ResponseEntity<List<EventParticipationDTO>> getEventParticipation(@RequestParam
+    public ResponseEntity<List<EventParticipationResponse>> getEventParticipation(@RequestParam
                                                                              UUID eventID) {
-        return ResponseEntity.ok(eventParticipationService.getEventParticipation(eventID));
+        List<EventParticipationResponse> events = eventParticipationService.getEventParticipation(eventID);
+        return ResponseEntity.ok(events);
     }
 }

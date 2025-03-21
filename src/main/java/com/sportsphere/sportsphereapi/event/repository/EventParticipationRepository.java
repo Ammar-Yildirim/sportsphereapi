@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface EventParticipationRepository extends JpaRepository<EventParticipation, EventParticipationID> {
     List<EventParticipation> findByEventParticipationIDEventID(UUID eventID);
+    Long countByEventParticipationIDEventID(UUID eventID);
 }

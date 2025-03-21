@@ -1,27 +1,31 @@
 package com.sportsphere.sportsphereapi.event.mapper;
 
-import com.sportsphere.sportsphereapi.event.DTO.EventParticipationDTO;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
+import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
 import com.sportsphere.sportsphereapi.event.entity.ID.EventParticipationID;
+import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventParticipationMapper {
-    public EventParticipation toEntity(EventParticipationDTO dto) {
+    public EventParticipation toEntity(EventParticipationRequest request, User user) {
         return EventParticipation.builder()
                 .eventParticipationID(EventParticipationID.builder()
-                        .eventID(dto.getEventID())
-                        .userID(dto.getUserID())
+                        .eventID(request.getEventID())
+                        .userID(user.getId())
                         .build())
-                .spot(dto.getSpot())
-                .team(dto.getTeam())
+                .user(user)
+                .spot(request.getSpot())
+                .team(request.getTeam())
                 .build();
     }
 
-    public EventParticipationDTO toDTO(EventParticipation entity) {
-        return EventParticipationDTO.builder()
+    public EventParticipationResponse toEventParticipationResponse(EventParticipation entity) {
+        return EventParticipationResponse.builder()
                 .eventID(entity.getEventParticipationID().getEventID())
                 .userID(entity.getEventParticipationID().getUserID())
+                .userName(entity.getUser().getFirstname())
                 .team(entity.getTeam())
                 .spot(entity.getSpot())
                 .build();

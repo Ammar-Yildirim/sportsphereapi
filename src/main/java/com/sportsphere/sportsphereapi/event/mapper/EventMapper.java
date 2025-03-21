@@ -8,9 +8,6 @@ import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 @Component
 public class EventMapper {
     public Event toEntity(EventDTO dto, User user, Location location){
