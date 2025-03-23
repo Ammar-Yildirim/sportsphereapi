@@ -17,16 +17,40 @@ public class EventController {
 
     private final EventService eventService;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<EventDTO>> getAll(){
-        List<EventDTO> eventDTOs = eventService.getAll();
+    @GetMapping("/getUpcomingEvents")
+    public ResponseEntity<List<EventDTO>> getUpcomingEventsByLocation(@RequestParam(value = "refLat", required = false) Double refLat, @RequestParam(value = "refLon", required = false) Double refLon) {
+        List<EventDTO> eventDTOs = eventService.getUpcomingEvents(refLat, refLon);
+        return ResponseEntity.ok(eventDTOs);
+    }
+
+    @GetMapping("/getUpcomingEventsByCreator")
+    public ResponseEntity<List<EventDTO>> getUpcomingEventsByCreator() {
+        List<EventDTO> eventDTOs = eventService.getUpcomingEventsByCreator();
+        return ResponseEntity.ok(eventDTOs);
+    }
+
+    @GetMapping("/getPastEventsByCreator")
+    public ResponseEntity<List<EventDTO>> getPastEventsByCreator() {
+        List<EventDTO> eventDTOs = eventService.getPastEventsByCreator();
+        return ResponseEntity.ok(eventDTOs);
+    }
+
+    @GetMapping("/getUpcomingEventsByParticipant")
+    public ResponseEntity<List<EventDTO>> getUpcomingEventsByParticipant() {
+        List<EventDTO> eventDTOs = eventService.getUpcomingEventsByParticipant();
+        return ResponseEntity.ok(eventDTOs);
+    }
+
+    @GetMapping("/getPastEventsByParticipant")
+    public ResponseEntity<List<EventDTO>> getPastEventsByParticipant() {
+        List<EventDTO> eventDTOs = eventService.getPastEventsByParticipant();
         return ResponseEntity.ok(eventDTOs);
     }
 
     @GetMapping("/getByID")
-    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id){
+    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id) {
         EventDTO eventDTO = eventService.getById(id);
-        if(eventDTO != null) return ResponseEntity.ok(eventDTO);
+        if (eventDTO != null) return ResponseEntity.ok(eventDTO);
         return ResponseEntity.notFound().build();
     }
 
