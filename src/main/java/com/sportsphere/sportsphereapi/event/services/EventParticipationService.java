@@ -1,5 +1,6 @@
 package com.sportsphere.sportsphereapi.event.services;
 
+import com.sportsphere.sportsphereapi.event.DTO.EventParticipationCountDTO;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
@@ -14,7 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,12 +28,12 @@ public class EventParticipationService {
     private final EventParticipationMapper eventParticipationMapper;
 
     public EventParticipationResponse addParticipation(EventParticipationRequest dto) {
-        try{
+        try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user);
             eventParticipationRepository.save(eventParticipation);
             return eventParticipationMapper.toEventParticipationResponse(eventParticipation);
-        }catch(DataIntegrityViolationException ex){
+        } catch (DataIntegrityViolationException ex) {
             throw new CustomException("Data Integrity Error", "Participant already exists", HttpStatus.CONFLICT);
         }
     }
@@ -40,7 +43,10 @@ public class EventParticipationService {
                 .stream().map(eventParticipationMapper::toEventParticipationResponse).toList();
     }
 
-    public Long getEventParticipationCount(UUID eventID) {
-        return eventParticipationRepository.countByEventParticipationIDEventID(eventID);
+    public Map<UUID, Long> getParticipationCounts(List<UUID> eventIDs) {
+        return eventParticipationRepository.getParticipationCounts(eventIDs).stream()
+                .collect(Collectors.toMap(
+                        EventParticipationCountDTO::getEventId,
+                        EventParticipationCountDTO::getCount));
     }
 }

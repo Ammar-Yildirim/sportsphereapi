@@ -18,17 +18,45 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             "  ll_to_earth(:refLat, :refLon), " +
             "  ll_to_earth(l.latitude, l.longitude)" +
             ") <= :distanceInMeters " +
-            "AND e.starts_at > NOW()::timestamp", nativeQuery = true)
+            "AND e.starts_at > NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
     List<Event> findUpcomingEventsWithinDistance(@Param("refLat") double refLat, @Param("refLon") double refLon, @Param("distanceInMeters") double distanceInMeters);
 
     @Query(value = "SELECT * " +
             "FROM events " +
-            "WHERE starts_at > NOW()::timestamp", nativeQuery = true)
+            "WHERE starts_at > NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
     List<Event> findUpcomingEvents();
 
     @Query(value = "SELECT e.* " +
             "FROM events e " +
             "WHERE e.created_by = :userId " +
-            "AND e.starts_at < current_date", nativeQuery = true)
-    List<Event> findPastEventsByUser(@Param("userId") UUID userId);
+            "AND e.starts_at > NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
+    List<Event> findUpcomingEventsByCreator(@Param("userId") UUID userId);
+
+    @Query(value = "SELECT e.* " +
+            "FROM events e " +
+            "WHERE e.created_by = :userId " +
+            "AND e.starts_at < NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
+    List<Event> findPastEventsByCreator(@Param("userId") UUID userId);
+
+    @Query(value = "SELECT e.* " +
+            "FROM events e " +
+            "JOIN event_participation ep " +
+            "ON e.id = ep.event_id " +
+            "WHERE ep.user_id = :userId " +
+            "AND e.starts_at > NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
+    List<Event> findUpcomingEventsByParticipant(@Param("userId") UUID userId);
+
+    @Query(value = "SELECT e.* " +
+            "FROM events e " +
+            "JOIN event_participation ep " +
+            "ON e.id = ep.event_id " +
+            "WHERE ep.user_id = :userId " +
+            "AND e.starts_at < NOW()::timestamp " +
+            "ORDER BY e.starts_at", nativeQuery = true)
+    List<Event> findPastEventsByParticipant(@Param("userId") UUID userId);
 }
