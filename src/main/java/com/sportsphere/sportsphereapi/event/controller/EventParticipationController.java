@@ -1,5 +1,6 @@
 package com.sportsphere.sportsphereapi.event.controller;
 
+import com.sportsphere.sportsphereapi.event.DTO.MonthlyParticipationDTO;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.services.EventParticipationService;
@@ -35,5 +36,10 @@ public class EventParticipationController {
     @PostMapping("/getParticipationCounts")
     public ResponseEntity<Map<UUID, Long>> getParticipationCounts(@RequestBody List<UUID> eventIDs){
         return ResponseEntity.ok(eventParticipationService.getParticipationCounts(eventIDs));
+    }
+
+    @GetMapping("/getMonthlyParticipation")
+    public ResponseEntity<List<MonthlyParticipationDTO>> getMonthlyParticipation(){
+        return ResponseEntity.ok(eventParticipationService.getMonthlyParticipation());
     }
 }

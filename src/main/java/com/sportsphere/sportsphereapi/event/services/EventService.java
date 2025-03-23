@@ -57,7 +57,7 @@ public class EventService {
                     .map(eventMapper::toDTO)
                     .toList();
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Upcoming Events", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -68,7 +68,7 @@ public class EventService {
                     .map(eventMapper::toDTO)
                     .toList();
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Past Events", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -79,7 +79,7 @@ public class EventService {
                     .map(eventMapper::toDTO)
                     .toList();
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Upcoming Events", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -90,7 +90,7 @@ public class EventService {
                     .map(eventMapper::toDTO)
                     .toList();
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Past Events", HttpStatus.NOT_FOUND);
         }
     }
 }

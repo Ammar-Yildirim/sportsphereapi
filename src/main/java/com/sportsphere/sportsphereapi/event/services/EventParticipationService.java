@@ -1,6 +1,7 @@
 package com.sportsphere.sportsphereapi.event.services;
 
 import com.sportsphere.sportsphereapi.event.DTO.EventParticipationCountDTO;
+import com.sportsphere.sportsphereapi.event.DTO.MonthlyParticipationDTO;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
@@ -48,5 +49,10 @@ public class EventParticipationService {
                 .collect(Collectors.toMap(
                         EventParticipationCountDTO::getEventId,
                         EventParticipationCountDTO::getCount));
+    }
+
+    public List<MonthlyParticipationDTO> getMonthlyParticipation(){
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return eventParticipationRepository.getMonthlyParticipation(user.getId());
     }
 }
