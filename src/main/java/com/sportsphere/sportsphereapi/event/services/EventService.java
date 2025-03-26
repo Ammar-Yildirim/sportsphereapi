@@ -34,63 +34,50 @@ public class EventService {
         return event.getId();
     }
 
-    public EventDTO getById(UUID id) {
+    public Event getById(UUID id) {
         return eventRepository.findById(id)
-                .map(eventMapper::toDTO)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
     }
 
-    public List<EventDTO> getUpcomingEvents(Double refLat, Double refLon) {
-        List<Event> events = (refLat != null && refLon != null)
+    public List<Event> getUpcomingEvents(Double refLat, Double refLon) {
+        return (refLat != null && refLon != null)
                 ? eventRepository.findUpcomingEventsWithinDistance(refLat, refLon, 30000)
                 : eventRepository.findUpcomingEvents();
-
-        return events.stream()
-                .map(eventMapper::toDTO)
-                .toList();
     }
 
-    public List<EventDTO> getUpcomingEventsByCreator() {
+    public List<Event> getUpcomingEventsByCreator() {
         try{
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return eventRepository.findUpcomingEventsByCreator(user.getId()).stream()
-                    .map(eventMapper::toDTO)
-                    .toList();
+            return eventRepository.findUpcomingEventsByCreator(user.getId());
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Upcoming Events", HttpStatus.NOT_FOUND);
         }
     }
 
-    public List<EventDTO> getPastEventsByCreator() {
+    public List<Event> getPastEventsByCreator() {
         try{
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return eventRepository.findPastEventsByCreator(user.getId()).stream()
-                    .map(eventMapper::toDTO)
-                    .toList();
+            return eventRepository.findPastEventsByCreator(user.getId());
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Past Events", HttpStatus.NOT_FOUND);
         }
     }
 
-    public List<EventDTO> getUpcomingEventsByParticipant() {
+    public List<Event> getUpcomingEventsByParticipant() {
         try{
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return eventRepository.findUpcomingEventsByParticipant(user.getId()).stream()
-                    .map(eventMapper::toDTO)
-                    .toList();
+            return eventRepository.findUpcomingEventsByParticipant(user.getId());
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Upcoming Events", HttpStatus.NOT_FOUND);
         }
     }
 
-    public List<EventDTO> getPastEventsByParticipant() {
+    public List<Event> getPastEventsByParticipant() {
         try{
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return eventRepository.findPastEventsByParticipant(user.getId()).stream()
-                    .map(eventMapper::toDTO)
-                    .toList();
+            return eventRepository.findPastEventsByParticipant(user.getId());
         }catch (Exception e){
-            throw new CustomException("Database Error", "Error occurred while fetching data", HttpStatus.NOT_FOUND);
+            throw new CustomException("Database Error", "Error occurred while fetching Past Events", HttpStatus.NOT_FOUND);
         }
     }
 }

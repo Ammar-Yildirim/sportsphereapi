@@ -40,7 +40,7 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .enabled(true)
                 .build();
-        userRepository.save(user);
+        user = userRepository.save(user);
 
         String newAccessToken = jwtService.generateToken(user, false);
         String newRefreshToken = jwtService.generateToken(user, true);
@@ -49,6 +49,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(newAccessToken)
+                .userId(user.getId())
                 .build();
     }
 
@@ -68,6 +69,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(newAccessToken)
+                .userId(user.getId())
                 .build();
     }
 
@@ -83,6 +85,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(newAccessToken)
+                .userId(user.getId())
                 .build();
     }
 

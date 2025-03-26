@@ -1,9 +1,11 @@
 package com.sportsphere.sportsphereapi.event.services;
 
 import com.sportsphere.sportsphereapi.event.DTO.EventParticipationCountDTO;
+import com.sportsphere.sportsphereapi.event.DTO.MonthlyParticipationDTO;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
-import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
+import com.sportsphere.sportsphereapi.event.entity.Event;
 import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
+import com.sportsphere.sportsphereapi.event.entity.ID.EventParticipationID;
 import com.sportsphere.sportsphereapi.event.mapper.EventParticipationMapper;
 import com.sportsphere.sportsphereapi.event.repository.EventParticipationRepository;
 import com.sportsphere.sportsphereapi.exception.CustomException;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,23 +27,46 @@ import java.util.stream.Collectors;
 public class EventParticipationService {
 
     private final EventParticipationRepository eventParticipationRepository;
-
+    private final EventService eventService;
     private final EventParticipationMapper eventParticipationMapper;
 
-    public EventParticipationResponse addParticipation(EventParticipationRequest dto) {
+    public EventParticipation addParticipation(EventParticipationRequest dto) {
+        Event event = eventService.getById(dto.getEventID());
+        if (event.getStartsAt().isBefore(LocalDateTime.now())) {
+            throw new CustomException("Bad request", "You can't participate in a past event.", HttpStatus.BAD_REQUEST);
+        }
+
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user);
             eventParticipationRepository.save(eventParticipation);
-            return eventParticipationMapper.toEventParticipationResponse(eventParticipation);
+            return eventParticipation;
         } catch (DataIntegrityViolationException ex) {
-            throw new CustomException("Data Integrity Error", "Participant already exists", HttpStatus.CONFLICT);
+            throw new CustomException("Data Integrity Error", "This spot was occupied, please try another.", HttpStatus.CONFLICT);
         }
     }
 
-    public List<EventParticipationResponse> getEventParticipation(UUID eventID) {
-        return eventParticipationRepository.findByEventParticipationIDEventID(eventID)
-                .stream().map(eventParticipationMapper::toEventParticipationResponse).toList();
+    public UUID removeParticipation(UUID eventId) {
+        Event event = eventService.getById(eventId);
+        if (event.getStartsAt().isBefore(LocalDateTime.now())) {
+            throw new CustomException("Bad request", "You can't remove participation in a past event.", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UUID userId = user.getId();
+            eventParticipationRepository.deleteById(EventParticipationID.builder()
+                    .eventID(eventId)
+                    .userID(userId)
+                    .build());
+            return userId;
+        } catch (DataIntegrityViolationException ex) {
+            throw new CustomException("Database Error", "An error occurred while removing participation.", HttpStatus.CONFLICT);
+        }
+    }
+
+    public List<EventParticipation> getEventParticipation(UUID eventID) {
+        return eventParticipationRepository.findByEventParticipationIDEventID(eventID);
     }
 
     public Map<UUID, Long> getParticipationCounts(List<UUID> eventIDs) {
@@ -48,5 +74,10 @@ public class EventParticipationService {
                 .collect(Collectors.toMap(
                         EventParticipationCountDTO::getEventId,
                         EventParticipationCountDTO::getCount));
+    }
+
+    public List<MonthlyParticipationDTO> getMonthlyParticipation() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return eventParticipationRepository.getMonthlyParticipation(user.getId());
     }
 }
