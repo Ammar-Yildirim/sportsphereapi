@@ -15,6 +15,7 @@ import java.util.UUID;
 public class EventDTO {
 
     private final UUID id;
+    private final UUID userId;
     private final String title;
     private final String description;
     private final LocalDateTime startsAt;

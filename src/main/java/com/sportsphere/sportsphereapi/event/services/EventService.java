@@ -4,6 +4,7 @@ import com.sportsphere.sportsphereapi.event.DTO.EventDTO;
 import com.sportsphere.sportsphereapi.event.entity.Event;
 import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
+import com.sportsphere.sportsphereapi.event.repository.EventParticipationRepository;
 import com.sportsphere.sportsphereapi.event.repository.EventRepository;
 import com.sportsphere.sportsphereapi.exception.CustomException;
 import com.sportsphere.sportsphereapi.user.User;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class EventService {
     private final LocationService locationService;
     private final EventRepository eventRepository;
+    private final EventParticipationRepository eventParticipationRepository;
     private final EventMapper eventMapper;
 
     @Transactional
@@ -32,6 +35,24 @@ public class EventService {
         event = eventRepository.save(event);
 
         return event.getId();
+    }
+
+    @Transactional
+    public UUID deleteEvent(UUID id){
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!event.getCreatedBy().getId().equals(user.getId())) {
+            throw new CustomException("Unauthorized", "Only the event creator can delete this event", HttpStatus.FORBIDDEN);
+        }
+
+        if(event.getStartsAt().isBefore(LocalDateTime.now())){
+            throw new CustomException("Unauthorized", "Past Events can not be deleted", HttpStatus.FORBIDDEN);
+        }
+        eventParticipationRepository.deleteByEventParticipationIDEventID(id);
+        eventRepository.delete(event);
+        return id;
     }
 
     public Event getById(UUID id) {

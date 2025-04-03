@@ -25,7 +25,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query(value = "SELECT * " +
             "FROM events " +
             "WHERE starts_at > NOW()::timestamp " +
-            "ORDER BY e.starts_at", nativeQuery = true)
+            "ORDER BY starts_at", nativeQuery = true)
     List<Event> findUpcomingEvents();
 
     @Query(value = "SELECT e.* " +

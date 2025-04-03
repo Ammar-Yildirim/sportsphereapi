@@ -28,7 +28,9 @@ public interface EventParticipationRepository extends JpaRepository<EventPartici
             "ON ep.event_id = e.id " +
             "WHERE user_id = :userId " +
             "AND e.starts_at >= DATE_TRUNC('year', current_date) " +
-            "AND e.starts_at <= current_date " +
+            "AND e.starts_at <= current_timestamp " +
             "GROUP BY EXTRACT(MONTH FROM e.starts_at);", nativeQuery = true)
     List<MonthlyParticipationDTO> getMonthlyParticipation(@Param("userId") UUID userId);
+
+    void deleteByEventParticipationIDEventID(UUID eventId);
 }

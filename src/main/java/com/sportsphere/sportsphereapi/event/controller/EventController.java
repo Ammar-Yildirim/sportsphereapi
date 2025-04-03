@@ -20,7 +20,7 @@ public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
 
-    @GetMapping("/getUpcomingEvents")
+    @GetMapping("/upcoming")
     public ResponseEntity<List<EventDTO>> getUpcomingEventsByLocation(@RequestParam(value = "refLat", required = false) Double refLat, @RequestParam(value = "refLon", required = false) Double refLon) {
         List<Event> events = eventService.getUpcomingEvents(refLat, refLon);
         return ResponseEntity.ok(mapEventsToDTOs(events));
@@ -50,9 +50,9 @@ public class EventController {
         return ResponseEntity.ok(mapEventsToDTOs(events));
     }
 
-    @GetMapping("/getByID")
-    public ResponseEntity<EventDTO> getById(@RequestParam("id") UUID id) {
-        Event event = eventService.getById(id);
+    @GetMapping("/{eventID}")
+    public ResponseEntity<EventDTO> getById(@PathVariable("eventID") UUID eventID) {
+        Event event = eventService.getById(eventID);
         if (event != null) return ResponseEntity.ok(eventMapper.toDTO(event));
         return ResponseEntity.notFound().build();
     }
@@ -60,6 +60,12 @@ public class EventController {
     @PostMapping("/create")
     public ResponseEntity<UUID> createEvent(@RequestBody EventDTO eventDTO) {
         UUID id = eventService.createEvent(eventDTO);
+        return ResponseEntity.ok(id);
+    }
+
+    @DeleteMapping("/{eventID}")
+    public ResponseEntity<UUID> deleteEvent(@PathVariable("eventID") UUID eventID) {
+        UUID id = eventService.deleteEvent(eventID);
         return ResponseEntity.ok(id);
     }
 
