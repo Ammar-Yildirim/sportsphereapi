@@ -48,8 +48,14 @@ public class EventParticipationService {
 
     public UUID removeParticipation(UUID eventId) {
         Event event = eventService.getById(eventId);
-        if (event.getStartsAt().isBefore(LocalDateTime.now())) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (event.getStartsAt().isBefore(now)) {
             throw new CustomException("Bad request", "You can't remove participation in a past event.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (event.getStartsAt().isBefore(now.plusMinutes(30))) {
+            throw new CustomException("Bad request", "You can't leave an event with 30 minutes or less left until it starts.", HttpStatus.BAD_REQUEST);
         }
 
         try {

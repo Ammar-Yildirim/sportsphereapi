@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,5 +46,11 @@ public class GlobalExceptionHandler {
         log.error("Error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
                 .body(Map.of("error", "Error ", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value())
+                .body(Map.of("error", "User Not Found ", "Message", "User Not Found"));
     }
 }
