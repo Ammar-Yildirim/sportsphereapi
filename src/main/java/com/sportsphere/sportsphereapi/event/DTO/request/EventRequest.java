@@ -1,21 +1,20 @@
-package com.sportsphere.sportsphereapi.event.DTO;
+package com.sportsphere.sportsphereapi.event.DTO.request;
 
+import com.sportsphere.sportsphereapi.event.DTO.LocationDTO;
+import com.sportsphere.sportsphereapi.event.DTO.Sport;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @ToString
 @Getter
 @RequiredArgsConstructor
 @Builder
-public class EventDTO {
+public class EventRequest {
 
-    private final UUID id;
-    private final UUID userId;
     private final String title;
     private final String description;
     private final LocalDateTime startsAt;
@@ -23,5 +22,4 @@ public class EventDTO {
     private final Integer playerNumber;
     private final LocationDTO locationDTO;
     private final Sport sport;
-    private final String createdBy;
 }

@@ -1,6 +1,6 @@
 package com.sportsphere.sportsphereapi.event.services;
 
-import com.sportsphere.sportsphereapi.event.DTO.EventDTO;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventRequest;
 import com.sportsphere.sportsphereapi.event.entity.Event;
 import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
@@ -28,10 +28,10 @@ public class EventService {
     private final EventMapper eventMapper;
 
     @Transactional
-    public UUID createEvent(EventDTO eventDTO) {
+    public UUID createEvent(EventRequest eventRequest) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Location location = locationService.createLocation(eventDTO.getLocationDTO());
-        Event event = eventMapper.toEntity(eventDTO, user, location);
+        Location location = locationService.createLocation(eventRequest.getLocationDTO());
+        Event event = eventMapper.toEntity(eventRequest, user, location);
         event = eventRepository.save(event);
 
         return event.getId();
