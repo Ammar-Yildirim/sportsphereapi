@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class EventParticipationService {
     private final EventService eventService;
     private final EventParticipationMapper eventParticipationMapper;
 
+    @Transactional
     public EventParticipation addParticipation(EventParticipationRequest dto) {
         Event event = eventService.getById(dto.getEventID());
         if (event.getStartsAt().isBefore(LocalDateTime.now())) {
@@ -46,6 +48,7 @@ public class EventParticipationService {
         }
     }
 
+    @Transactional
     public UUID removeParticipation(UUID eventId) {
         Event event = eventService.getById(eventId);
         LocalDateTime now = LocalDateTime.now();

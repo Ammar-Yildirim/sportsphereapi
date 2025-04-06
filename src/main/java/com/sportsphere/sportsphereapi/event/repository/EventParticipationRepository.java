@@ -10,11 +10,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface EventParticipationRepository extends JpaRepository<EventParticipation, EventParticipationID> {
     List<EventParticipation> findByEventParticipationIDEventID(UUID eventID);
+    Optional<EventParticipation> findByEventParticipationIDUserIDAndEventParticipationIDEventID(
+            UUID userId, UUID eventId);
 
     @Query(value = "SELECT event_id, count(*) " +
             "FROM event_participation " +

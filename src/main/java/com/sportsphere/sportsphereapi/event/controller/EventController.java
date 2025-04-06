@@ -1,11 +1,15 @@
 package com.sportsphere.sportsphereapi.event.controller;
 
+import com.sportsphere.sportsphereapi.event.DTO.request.CommentRequest;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventRequest;
+import com.sportsphere.sportsphereapi.event.DTO.response.CommentResponse;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventResponse;
 import com.sportsphere.sportsphereapi.event.entity.Event;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
+import com.sportsphere.sportsphereapi.event.services.CommentService;
 import com.sportsphere.sportsphereapi.event.services.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +23,7 @@ import java.util.UUID;
 public class EventController {
 
     private final EventService eventService;
+    private final CommentService commentService;
     private final EventMapper eventMapper;
 
     @GetMapping("/upcoming")
@@ -68,6 +73,18 @@ public class EventController {
     public ResponseEntity<UUID> deleteEvent(@PathVariable("eventID") UUID eventID) {
         UUID id = eventService.deleteEvent(eventID);
         return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByEventId(@PathVariable UUID eventId) {
+        List<CommentResponse> comments = commentService.getCommentsByEventId(eventId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{eventId}/comments")
+    public ResponseEntity<CommentResponse> createComment(@PathVariable UUID eventId, @RequestBody CommentRequest request) {
+        CommentResponse response = commentService.createComment(eventId, request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     private List<EventResponse> mapEventsToEventResponses(List<Event> events) {
