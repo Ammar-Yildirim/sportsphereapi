@@ -19,13 +19,21 @@ public interface EventParticipationRepository extends JpaRepository<EventPartici
     Optional<EventParticipation> findByEventParticipationIDUserIDAndEventParticipationIDEventID(
             UUID userId, UUID eventId);
 
-    @Query(value = "SELECT event_id, count(*) " +
-            "FROM event_participation " +
-            "WHERE event_id IN :eventIds " +
-            "GROUP BY event_id", nativeQuery = true)
+//    @Query(value = "SELECT event_id, count(*) " +
+//            "FROM event_participation " +
+//            "WHERE event_id IN :eventIds " +
+//            "GROUP BY event_id", nativeQuery = true)
+@Query("""
+    SELECT new com.sportsphere.sportsphereapi.event.DTO.EventParticipationCountDTO(
+        ep.eventParticipationID.eventID, COUNT(ep)
+    )
+    FROM EventParticipation ep
+    WHERE ep.eventParticipationID.eventID IN :eventIds
+    GROUP BY ep.eventParticipationID.eventID
+    """)
     List<EventParticipationCountDTO> getParticipationCounts(@Param("eventIds") List<UUID> eventIds);
 
-    @Query(value = "SELECT EXTRACT(MONTH FROM e.starts_at)::integer AS month, count(*) " +
+    @Query(value = "SELECT EXTRACT(MONTH FROM e.starts_at)::integer AS \"month\", count(*) " +
             "FROM event_participation ep " +
             "JOIN events e " +
             "ON ep.event_id = e.id " +
