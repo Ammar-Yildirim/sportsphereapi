@@ -88,7 +88,6 @@ class EventParticipationServiceTest {
                 .build();
 
         testRequest = EventParticipationRequest.builder()
-                .eventID(eventId)
                 .team(1)
                 .spot(2)
                 .build();
@@ -101,16 +100,16 @@ class EventParticipationServiceTest {
     @Test
     void testAddParticipation_WhenValidInput_Succeeds() {
         when(eventService.getById(eventId)).thenReturn(testEvent);
-        when(eventParticipationMapper.toEntity(testRequest, testUser)).thenReturn(testParticipation);
+        when(eventParticipationMapper.toEntity(testRequest, testUser, eventId)).thenReturn(testParticipation);
         when(eventParticipationRepository.save(testParticipation)).thenReturn(testParticipation);
 
-        EventParticipation result = participationService.addParticipation(testRequest);
+        EventParticipation result = participationService.addParticipation(eventId,testRequest);
 
         assertNotNull(result);
         assertEquals(testParticipation, result);
 
         verify(eventService, times(1)).getById(eventId);
-        verify(eventParticipationMapper, times(1)).toEntity(testRequest, testUser);
+        verify(eventParticipationMapper, times(1)).toEntity(testRequest, testUser, eventId);
         verify(eventParticipationRepository, times(1)).save(testParticipation);
     }
 
@@ -127,7 +126,7 @@ class EventParticipationServiceTest {
 
         CustomException exception = assertThrows(
                 CustomException.class,
-                () -> participationService.addParticipation(testRequest)
+                () -> participationService.addParticipation(eventId, testRequest)
         );
 
         assertEquals("Bad request", exception.getError());
@@ -140,12 +139,12 @@ class EventParticipationServiceTest {
     @Test
     void testAddParticipation_WhenSpotTaken_ThrowsException() {
         when(eventService.getById(eventId)).thenReturn(testEvent);
-        when(eventParticipationMapper.toEntity(testRequest, testUser)).thenReturn(testParticipation);
+        when(eventParticipationMapper.toEntity(testRequest, testUser, eventId)).thenReturn(testParticipation);
         when(eventParticipationRepository.save(testParticipation)).thenThrow(DataIntegrityViolationException.class);
 
         CustomException exception = assertThrows(
                 CustomException.class,
-                () -> participationService.addParticipation(testRequest)
+                () -> participationService.addParticipation(eventId, testRequest)
         );
 
         assertEquals("Data Integrity Error", exception.getError());
@@ -153,7 +152,7 @@ class EventParticipationServiceTest {
         assertEquals(HttpStatus.CONFLICT, exception.getHttpStatus());
 
         verify(eventService, times(1)).getById(eventId);
-        verify(eventParticipationMapper, times(1)).toEntity(testRequest, testUser);
+        verify(eventParticipationMapper, times(1)).toEntity(testRequest, testUser, eventId);
         verify(eventParticipationRepository, times(1)).save(testParticipation);
     }
 

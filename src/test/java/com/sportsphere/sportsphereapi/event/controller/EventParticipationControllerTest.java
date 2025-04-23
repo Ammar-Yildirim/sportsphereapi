@@ -2,16 +2,13 @@ package com.sportsphere.sportsphereapi.event.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportsphere.sportsphereapi.event.DTO.MonthlyParticipationDTO;
-import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
-import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
-import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
-import com.sportsphere.sportsphereapi.event.mapper.EventParticipationMapper;
 import com.sportsphere.sportsphereapi.event.services.EventParticipationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -24,6 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(MockitoExtension.class)
 class EventParticipationControllerTest {
 
     private MockMvc mockMvc;
@@ -31,78 +29,17 @@ class EventParticipationControllerTest {
     @Mock
     private EventParticipationService eventParticipationService;
 
-    @Mock
-    private EventParticipationMapper eventParticipationMapper;
-
     @InjectMocks
     private EventParticipationController eventParticipationController;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private UUID eventId;
-    private UUID userId;
-    private EventParticipation eventParticipation;
-    private EventParticipationResponse eventParticipationResponse;
-    private EventParticipationRequest eventParticipationRequest;
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(eventParticipationController).build();
-
         eventId = UUID.randomUUID();
-        userId = UUID.randomUUID();
-
-        eventParticipation = new EventParticipation();
-
-        eventParticipationResponse = EventParticipationResponse.builder()
-                .eventID(eventId)
-                .userID(userId)
-                .build();
-
-        eventParticipationRequest = EventParticipationRequest.builder()
-                .eventID(eventId)
-                .build();
-    }
-
-    @Test
-    void testAddParticipation() throws Exception {
-        when(eventParticipationService.addParticipation(any(EventParticipationRequest.class)))
-                .thenReturn(eventParticipation);
-        when(eventParticipationMapper.toEventParticipationResponse(eventParticipation))
-                .thenReturn(eventParticipationResponse);
-
-        mockMvc.perform(post("/api/v1/eventParticipation/addParticipation")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(eventParticipationRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.eventID").value(eventId.toString()))
-                .andExpect(jsonPath("$.userID").value(userId.toString()));
-    }
-
-    @Test
-    void testRemoveParticipation() throws Exception {
-        when(eventParticipationService.removeParticipation(eventId)).thenReturn(userId);
-
-        mockMvc.perform(delete("/api/v1/eventParticipation/removeParticipation/" + eventId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(userId.toString()));
-    }
-
-    @Test
-    void testGetEventParticipation() throws Exception {
-        List<EventParticipation> participations = Arrays.asList(eventParticipation);
-
-        when(eventParticipationService.getEventParticipation(eventId)).thenReturn(participations);
-        when(eventParticipationMapper.toEventParticipationResponse(eventParticipation))
-                .thenReturn(eventParticipationResponse);
-
-        mockMvc.perform(get("/api/v1/eventParticipation/getEventParticipation")
-                        .param("eventID", eventId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].eventID").value(eventId.toString()))
-                .andExpect(jsonPath("$[0].userID").value(userId.toString()));
     }
 
     @Test

@@ -2,12 +2,17 @@ package com.sportsphere.sportsphereapi.event.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportsphere.sportsphereapi.event.DTO.request.CommentRequest;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventRequest;
 import com.sportsphere.sportsphereapi.event.DTO.response.CommentResponse;
+import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventResponse;
 import com.sportsphere.sportsphereapi.event.entity.Event;
+import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
+import com.sportsphere.sportsphereapi.event.mapper.EventParticipationMapper;
 import com.sportsphere.sportsphereapi.event.services.CommentService;
+import com.sportsphere.sportsphereapi.event.services.EventParticipationService;
 import com.sportsphere.sportsphereapi.event.services.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,23 +50,35 @@ class EventControllerTest {
     @Mock
     private EventMapper eventMapper;
 
+    @Mock
+    private EventParticipationService eventParticipationService;
+
+    @Mock
+    private EventParticipationMapper eventParticipationMapper;
+
     @InjectMocks
     private EventController eventController;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private UUID eventId;
+    private UUID userId;
     private Event event;
     private EventResponse eventResponse;
     private EventRequest eventRequest;
     private CommentRequest commentRequest;
     private CommentResponse commentResponse;
+    private EventParticipation eventParticipation;
+    private EventParticipationResponse eventParticipationResponse;
+    private EventParticipationRequest eventParticipationRequest;
 
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(eventController).build();
 
         eventId = UUID.randomUUID();
+        userId = UUID.randomUUID();
+
         event = new Event();
         event.setId(eventId);
 
@@ -79,6 +96,16 @@ class EventControllerTest {
         commentResponse = new CommentResponse();
         commentResponse.setId(1);
         commentResponse.setContent("Test Comment");
+
+        eventParticipation = new EventParticipation();
+
+        eventParticipationResponse = EventParticipationResponse.builder()
+                .eventID(eventId)
+                .userID(userId)
+                .build();
+
+        eventParticipationRequest = EventParticipationRequest.builder()
+                .build();
     }
 
     @Test
@@ -206,5 +233,44 @@ class EventControllerTest {
                         .content(objectMapper.writeValueAsString(commentRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)));
+    }
+
+    @Test
+    void testGetEventParticipation() throws Exception {
+        List<EventParticipation> participations = Arrays.asList(eventParticipation);
+
+        when(eventParticipationService.getEventParticipation(eventId)).thenReturn(participations);
+        when(eventParticipationMapper.toEventParticipationResponse(eventParticipation))
+                .thenReturn(eventParticipationResponse);
+
+        mockMvc.perform(get("/api/v1/events/" + eventId + "/participation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].eventID", is(eventId.toString())))
+                .andExpect(jsonPath("$[0].userID", is(userId.toString())));
+    }
+
+    @Test
+    void testAddParticipation() throws Exception {
+        when(eventParticipationService.addParticipation(eq(eventId), any(EventParticipationRequest.class)))
+                .thenReturn(eventParticipation);
+        when(eventParticipationMapper.toEventParticipationResponse(eventParticipation))
+                .thenReturn(eventParticipationResponse);
+
+        mockMvc.perform(post("/api/v1/events/" + eventId + "/participation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(eventParticipationRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.eventID", is(eventId.toString())))
+                .andExpect(jsonPath("$.userID", is(userId.toString())));
+    }
+
+    @Test
+    void testRemoveParticipation() throws Exception {
+        when(eventParticipationService.removeParticipation(eventId)).thenReturn(userId);
+
+        mockMvc.perform(delete("/api/v1/events/" + eventId + "/participation"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is(userId.toString())));
     }
 }

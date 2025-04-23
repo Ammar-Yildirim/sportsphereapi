@@ -32,15 +32,15 @@ public class EventParticipationService {
     private final EventParticipationMapper eventParticipationMapper;
 
     @Transactional
-    public EventParticipation addParticipation(EventParticipationRequest dto) {
-        Event event = eventService.getById(dto.getEventID());
+    public EventParticipation addParticipation(UUID eventId, EventParticipationRequest dto) {
+        Event event = eventService.getById(eventId);
         if (event.getStartsAt().isBefore(LocalDateTime.now())) {
             throw new CustomException("Bad request", "You can't participate in a past event.", HttpStatus.BAD_REQUEST);
         }
 
         try {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user);
+            EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user, eventId);
             eventParticipationRepository.save(eventParticipation);
             return eventParticipation;
         } catch (DataIntegrityViolationException ex) {

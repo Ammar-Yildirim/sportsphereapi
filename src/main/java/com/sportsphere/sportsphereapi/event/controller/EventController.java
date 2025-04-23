@@ -1,12 +1,17 @@
 package com.sportsphere.sportsphereapi.event.controller;
 
 import com.sportsphere.sportsphereapi.event.DTO.request.CommentRequest;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventParticipationRequest;
 import com.sportsphere.sportsphereapi.event.DTO.request.EventRequest;
 import com.sportsphere.sportsphereapi.event.DTO.response.CommentResponse;
+import com.sportsphere.sportsphereapi.event.DTO.response.EventParticipationResponse;
 import com.sportsphere.sportsphereapi.event.DTO.response.EventResponse;
 import com.sportsphere.sportsphereapi.event.entity.Event;
+import com.sportsphere.sportsphereapi.event.entity.EventParticipation;
 import com.sportsphere.sportsphereapi.event.mapper.EventMapper;
+import com.sportsphere.sportsphereapi.event.mapper.EventParticipationMapper;
 import com.sportsphere.sportsphereapi.event.services.CommentService;
+import com.sportsphere.sportsphereapi.event.services.EventParticipationService;
 import com.sportsphere.sportsphereapi.event.services.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +30,8 @@ public class EventController {
     private final EventService eventService;
     private final CommentService commentService;
     private final EventMapper eventMapper;
+    private final EventParticipationService eventParticipationService;
+    private final EventParticipationMapper eventParticipationMapper;
 
     @GetMapping("/upcoming")
     public ResponseEntity<List<EventResponse>> getUpcomingEventsByLocation(@RequestParam(value = "refLat", required = false) Double refLat, @RequestParam(value = "refLon", required = false) Double refLon) {
@@ -85,6 +92,26 @@ public class EventController {
     public ResponseEntity<CommentResponse> createComment(@PathVariable UUID eventId, @RequestBody CommentRequest request) {
         CommentResponse response = commentService.createComment(eventId, request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{eventId}/participation")
+    public ResponseEntity<List<EventParticipationResponse>> getEventParticipation(@PathVariable("eventId") UUID eventId) {
+        List<EventParticipation> events = eventParticipationService.getEventParticipation(eventId);
+        return ResponseEntity.ok(events.stream()
+                .map(eventParticipationMapper::toEventParticipationResponse)
+                .toList());
+    }
+
+    @PostMapping("/{eventId}/participation")
+    public ResponseEntity<EventParticipationResponse> addParticipation(@PathVariable("eventId") UUID eventId, @RequestBody EventParticipationRequest request) {
+        EventParticipation eventParticipation = eventParticipationService.addParticipation(eventId, request);
+        return ResponseEntity.ok(eventParticipationMapper.toEventParticipationResponse(eventParticipation));
+    }
+
+    @DeleteMapping("/{eventId}/participation")
+    public ResponseEntity<UUID> removeParticipation(@PathVariable("eventId") UUID eventId) {
+        UUID removedUserId = eventParticipationService.removeParticipation(eventId);
+        return ResponseEntity.ok(removedUserId);
     }
 
     private List<EventResponse> mapEventsToEventResponses(List<Event> events) {
