@@ -1,6 +1,7 @@
 package com.sportsphere.sportsphereapi.config;
 
 import com.sportsphere.sportsphereapi.exception.CustomException;
+import com.sportsphere.sportsphereapi.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -54,6 +54,10 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject, isRefreshToken);
     }
 
+    public String extractRole(String token, boolean isRefreshToken) {
+        return extractClaim(token, claims -> claims.get("role", String.class), isRefreshToken);
+    }
+
     private Claims extractAllClaims(String token, boolean isRefreshToken) {
         String secretKey = isRefreshToken ? REFRESH_TOKEN_SECRET_KEY : ACCESS_TOKEN_SECRET_KEY;
 
@@ -70,7 +74,10 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails, Boolean isRefreshToken) {
-        return generateToken(new HashMap<>(), userDetails, isRefreshToken);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", ((User) userDetails).getRole().name());
+
+        return generateToken(extraClaims, userDetails, isRefreshToken);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, boolean isRefreshToken) {

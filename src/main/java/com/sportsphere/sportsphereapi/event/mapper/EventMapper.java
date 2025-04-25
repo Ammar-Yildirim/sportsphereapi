@@ -47,6 +47,7 @@ public class EventMapper {
                         .name(event.getSportName())
                         .build())
                 .createdBy(event.getCreatedBy().getFirstname())
+                .createdAt(event.getCreatedAt())
                 .build();
     }
 }

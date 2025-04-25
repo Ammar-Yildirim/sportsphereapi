@@ -26,4 +26,5 @@ public class EventResponse {
     private final LocationDTO locationDTO;
     private final Sport sport;
     private final String createdBy;
+    private final LocalDateTime createdAt;
 }
