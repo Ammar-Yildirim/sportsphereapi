@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.event.ListDataEvent;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,4 +61,5 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             "AND e.starts_at < current_timestamp " +
             "ORDER BY e.starts_at", nativeQuery = true)
     List<Event> findPastEventsByParticipant(@Param("userId") UUID userId);
-}
+
+    List<Event> findByStartsAtBetweenOrderByStartsAt(LocalDateTime startTime, LocalDateTime endTime);}
