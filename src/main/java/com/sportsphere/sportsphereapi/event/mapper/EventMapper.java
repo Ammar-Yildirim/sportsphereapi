@@ -2,15 +2,16 @@ package com.sportsphere.sportsphereapi.event.mapper;
 
 import com.sportsphere.sportsphereapi.event.DTO.LocationDTO;
 import com.sportsphere.sportsphereapi.event.DTO.Sport;
+import com.sportsphere.sportsphereapi.event.DTO.response.EventResponse;
 import com.sportsphere.sportsphereapi.event.entity.Event;
-import com.sportsphere.sportsphereapi.event.DTO.EventDTO;
+import com.sportsphere.sportsphereapi.event.DTO.request.EventRequest;
 import com.sportsphere.sportsphereapi.event.entity.Location;
 import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
-    public Event toEntity(EventDTO dto, User user, Location location){
+    public Event toEntity(EventRequest dto, User user, Location location){
         return Event.builder()
                 .title(dto.getTitle())
                 .createdBy(user)
@@ -24,9 +25,10 @@ public class EventMapper {
                 .build();
     }
 
-    public EventDTO toDTO(Event event){
-        return EventDTO.builder()
+    public EventResponse toEventResponse(Event event){
+        return EventResponse.builder()
                 .id(event.getId())
+                .userId(event.getCreatedBy().getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .playerNumber(event.getPlayerNumber())
@@ -45,6 +47,7 @@ public class EventMapper {
                         .name(event.getSportName())
                         .build())
                 .createdBy(event.getCreatedBy().getFirstname())
+                .createdAt(event.getCreatedAt())
                 .build();
     }
 }

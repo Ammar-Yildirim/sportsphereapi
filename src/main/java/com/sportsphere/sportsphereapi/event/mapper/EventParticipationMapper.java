@@ -7,12 +7,14 @@ import com.sportsphere.sportsphereapi.event.entity.ID.EventParticipationID;
 import com.sportsphere.sportsphereapi.user.User;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class EventParticipationMapper {
-    public EventParticipation toEntity(EventParticipationRequest request, User user) {
+    public EventParticipation toEntity(EventParticipationRequest request, User user, UUID eventId) {
         return EventParticipation.builder()
                 .eventParticipationID(EventParticipationID.builder()
-                        .eventID(request.getEventID())
+                        .eventID(eventId)
                         .userID(user.getId())
                         .build())
                 .user(user)

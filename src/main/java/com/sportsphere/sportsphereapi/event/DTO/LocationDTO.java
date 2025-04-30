@@ -1,11 +1,8 @@
 package com.sportsphere.sportsphereapi.event.DTO;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
+@Data
 @RequiredArgsConstructor
 @ToString
 @Builder

@@ -101,9 +101,9 @@ public class AuthenticationService {
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // set to true if using https
-        cookie.setPath("/"); // Set the path if required
-        cookie.setMaxAge(60 * 60 * 24 * 15); // Set the expiration (e.g., 15 days)
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24 * 15);
         response.addCookie(cookie);
     }
 

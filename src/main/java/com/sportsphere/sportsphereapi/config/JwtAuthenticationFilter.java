@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -38,12 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && jwtService.validateToken(token, false)) {
                 String userEmail = jwtService.extractUsername(token, false);
                 User user = userRepository.findByEmail(userEmail)
-                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));;
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         user, null, user.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                log.info("JWT Validation successful for: {}", user.getUsername());
+                log.info("JWT Validation successful for: {} with role: {}", user.getUsername(), user.getRole());
             }
         } catch (CustomException ex) {
             SecurityContextHolder.clearContext();

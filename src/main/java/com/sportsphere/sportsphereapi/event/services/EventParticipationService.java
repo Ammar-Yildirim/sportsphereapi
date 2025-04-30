@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,15 +31,23 @@ public class EventParticipationService {
     private final EventService eventService;
     private final EventParticipationMapper eventParticipationMapper;
 
-    public EventParticipation addParticipation(EventParticipationRequest dto) {
-        Event event = eventService.getById(dto.getEventID());
+    @Transactional
+    public EventParticipation addParticipation(UUID eventId, EventParticipationRequest dto) {
+        Event event = eventService.getById(eventId);
         if (event.getStartsAt().isBefore(LocalDateTime.now())) {
             throw new CustomException("Bad request", "You can't participate in a past event.", HttpStatus.BAD_REQUEST);
         }
 
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean spotTaken = eventParticipationRepository.existsByEventParticipationID_EventIDAndTeamAndSpot(
+                eventId, dto.getTeam(), dto.getSpot());
+
+        if (spotTaken) {
+            throw new CustomException("Data Integrity Error", "This spot was occupied, please try another.", HttpStatus.CONFLICT);
+        }
+
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user);
+            EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user, eventId);
             eventParticipationRepository.save(eventParticipation);
             return eventParticipation;
         } catch (DataIntegrityViolationException ex) {
@@ -46,10 +55,17 @@ public class EventParticipationService {
         }
     }
 
+    @Transactional
     public UUID removeParticipation(UUID eventId) {
         Event event = eventService.getById(eventId);
-        if (event.getStartsAt().isBefore(LocalDateTime.now())) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (event.getStartsAt().isBefore(now)) {
             throw new CustomException("Bad request", "You can't remove participation in a past event.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (event.getStartsAt().isBefore(now.plusMinutes(30))) {
+            throw new CustomException("Bad request", "You can't leave an event with 30 minutes or less left until it starts.", HttpStatus.BAD_REQUEST);
         }
 
         try {

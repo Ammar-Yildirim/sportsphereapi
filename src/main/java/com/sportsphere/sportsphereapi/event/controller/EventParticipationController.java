@@ -22,27 +22,6 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
     private final EventParticipationMapper eventParticipationMapper;
 
-    @PostMapping("/addParticipation")
-    public ResponseEntity<EventParticipationResponse> addParticipation(@RequestBody EventParticipationRequest request) {
-        EventParticipation eventParticipation = eventParticipationService.addParticipation(request);
-        return ResponseEntity.ok(eventParticipationMapper.toEventParticipationResponse(eventParticipation));
-    }
-
-    @DeleteMapping("/removeParticipation/{eventId}")
-    public ResponseEntity<UUID> removeParticipation(@PathVariable("eventId") UUID eventId) {
-        UUID removedUserId = eventParticipationService.removeParticipation(eventId);
-        return ResponseEntity.ok(removedUserId);
-    }
-
-    @GetMapping("/getEventParticipation")
-    public ResponseEntity<List<EventParticipationResponse>> getEventParticipation(@RequestParam
-                                                                                  UUID eventID) {
-        List<EventParticipation> events = eventParticipationService.getEventParticipation(eventID);
-        return ResponseEntity.ok(events.stream()
-                .map(eventParticipationMapper::toEventParticipationResponse)
-                .toList());
-    }
-
     @PostMapping("/getParticipationCounts")
     public ResponseEntity<Map<UUID, Long>> getParticipationCounts(@RequestBody List<UUID> eventIDs) {
         return ResponseEntity.ok(eventParticipationService.getParticipationCounts(eventIDs));

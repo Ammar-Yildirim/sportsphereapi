@@ -1,5 +1,7 @@
-package com.sportsphere.sportsphereapi.event.DTO;
+package com.sportsphere.sportsphereapi.event.DTO.response;
 
+import com.sportsphere.sportsphereapi.event.DTO.LocationDTO;
+import com.sportsphere.sportsphereapi.event.DTO.Sport;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +14,10 @@ import java.util.UUID;
 @Getter
 @RequiredArgsConstructor
 @Builder
-public class EventDTO {
+public class EventResponse {
 
     private final UUID id;
+    private final UUID userId;
     private final String title;
     private final String description;
     private final LocalDateTime startsAt;
@@ -23,4 +26,5 @@ public class EventDTO {
     private final LocationDTO locationDTO;
     private final Sport sport;
     private final String createdBy;
+    private final LocalDateTime createdAt;
 }
