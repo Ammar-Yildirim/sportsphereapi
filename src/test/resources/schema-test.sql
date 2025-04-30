@@ -1,18 +1,20 @@
 
 CREATE TABLE users (
-    id uuid NOT NULL DEFAULT RANDOM_UUID(), -- Changed from uuid_generate_v4()
+    id uuid NOT NULL DEFAULT RANDOM_UUID(),
     first_name varchar(255) NOT NULL,
     last_name varchar(255) NOT NULL,
     email varchar(255) NOT NULL,
     password varchar(255) NOT NULL,
-    enabled BOOLEAN NOT NULL, -- Changed from BOOL
+    enabled BOOLEAN NOT NULL,
     role varchar(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
 
 CREATE TABLE locations (
-    id INT AUTO_INCREMENT PRIMARY KEY, -- Changed from SERIAL
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     latitude NUMERIC(10,7) NOT NULL,
     longitude NUMERIC(10,7) NOT NULL,
@@ -24,7 +26,7 @@ CREATE TABLE locations (
 
 
 CREATE TABLE events (
-    id uuid not null default RANDOM_UUID(), -- Changed from uuid_generate_v4()
+    id uuid not null default RANDOM_UUID(),
     created_by uuid not NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
