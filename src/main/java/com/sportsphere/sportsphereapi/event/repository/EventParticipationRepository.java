@@ -18,8 +18,9 @@ public interface EventParticipationRepository extends JpaRepository<EventPartici
     List<EventParticipation> findByEventParticipationIDEventID(UUID eventID);
     Optional<EventParticipation> findByEventParticipationIDUserIDAndEventParticipationIDEventID(
             UUID userId, UUID eventId);
+    boolean existsByEventParticipationID_EventIDAndTeamAndSpot(UUID eventId, Integer team, Integer spot);
 
-//    @Query(value = "SELECT event_id, count(*) " +
+    //    @Query(value = "SELECT event_id, count(*) " +
 //            "FROM event_participation " +
 //            "WHERE event_id IN :eventIds " +
 //            "GROUP BY event_id", nativeQuery = true)

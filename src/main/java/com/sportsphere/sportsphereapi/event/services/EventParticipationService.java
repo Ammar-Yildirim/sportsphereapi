@@ -38,8 +38,15 @@ public class EventParticipationService {
             throw new CustomException("Bad request", "You can't participate in a past event.", HttpStatus.BAD_REQUEST);
         }
 
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean spotTaken = eventParticipationRepository.existsByEventParticipationID_EventIDAndTeamAndSpot(
+                eventId, dto.getTeam(), dto.getSpot());
+
+        if (spotTaken) {
+            throw new CustomException("Data Integrity Error", "This spot was occupied, please try another.", HttpStatus.CONFLICT);
+        }
+
         try {
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             EventParticipation eventParticipation = eventParticipationMapper.toEntity(dto, user, eventId);
             eventParticipationRepository.save(eventParticipation);
             return eventParticipation;
